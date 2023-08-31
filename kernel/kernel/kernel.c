@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <kernel/stdio.h>
 
 #include <kernel/tty.h>
 

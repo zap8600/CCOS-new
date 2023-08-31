@@ -1,7 +1,7 @@
-#ifndef _STDIO_H
-#define _STDIO_H 1
+#ifndef _K_STDIO_H
+#define _K_STDIO_H 1
 
-#include <sys/cdefs.h>
+#include <kernel/sys/cdefs.h>
 
 #define EOF (-1)
 

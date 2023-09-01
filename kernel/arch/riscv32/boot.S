@@ -1,11 +1,9 @@
 .section .init
- 
-.option norvc
- 
-.type _start, @function
 .global _start
+.align 4
 _start:
 	/* Setup stack */
 	la sp, stack_top
-
-	tail kernel_main
+	addi sp,sp,-16
+	sw ra,12(sp)
+	jal ra, kernel_main

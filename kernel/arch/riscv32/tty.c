@@ -13,6 +13,7 @@ void terminal_initialize(void) {
 
 void terminal_putchar(char c) {
 	*uart = c;
+	//asm volatile( ".option norvc\ncsrrw x0, 0x138, %0\n" : : "r" (c));
 }
 
 void terminal_write(const char* data, size_t size) {

@@ -8,12 +8,14 @@
 unsigned char * uart = (unsigned char *)0x10000000; 
 
 void terminal_initialize(void) {
-	// init term
+	const uint8_t LCR = 0b11;
+	uart[3] =  LCR;
+	uart[2] = 0b1;
+	uart[1] = 0b1;
 }
 
 void terminal_putchar(char c) {
-	//*uart = c;
-	asm volatile( ".option norvc\ncsrrw x0, 0x138, %0\n" : : "r" (c));
+	*uart = c;
 }
 
 void terminal_write(const char* data, size_t size) {

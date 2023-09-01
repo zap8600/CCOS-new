@@ -8,4 +8,5 @@ done
 
 rm -rf sysroot
 rm -rf isodir
-rm -rf myos.iso
+rm -rf ccos.iso
+rm -rf gdttool

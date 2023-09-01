@@ -1,6 +1,7 @@
 DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
-HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
+#HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
+#HOSTARCH=riscv32
 
 CFLAGS?=-O2 -g
 CPPFLAGS?=
@@ -47,9 +48,11 @@ $(LIBS) \
 
 all: myos.kernel
 
+#removed for riscv32 comaptibility
+#add if you want to verify multiboot
+#grub-file --is-x86-multiboot myos.kernel
 myos.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot myos.kernel
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@

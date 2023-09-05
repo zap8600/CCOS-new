@@ -3,74 +3,43 @@
 #include "gdt.h"
 #include <kernel/string.h>
 
-typedef struct tss_entry {
-	uint32_t reserved_0;
-	uint64_t rsp[3];
-	uint64_t reserved_1;
-	uint64_t ist[7];
-	uint64_t reserved_2;
-	uint16_t reserved_3;
-	uint16_t iomap_base;
-} __attribute__ ((packed)) tss_entry_t;
+uint64_t gdt_entries[3];
 
-typedef struct {
-	uint16_t limit_low;
-	uint16_t base_low;
-	uint8_t base_middle;
-	uint8_t access;
-	uint8_t granularity;
-	uint8_t base_high;
-} __attribute__((packed)) gdt_entry_t;
-
-typedef struct {
-	uint32_t base_highest;
-	uint32_t reserved0;
-} __attribute__((packed)) gdt_entry_high_t;
-
-typedef struct {
+struct GDTR{
 	uint16_t limit;
-	uintptr_t base;
-} __attribute__((packed)) gdt_pointer_t;
+    uint64_t address;
+} __attribute__((packed));
 
-typedef struct  {
-	gdt_entry_t entries[8];
-	gdt_entry_high_t tss_extra;
-	gdt_pointer_t pointer;
-	tss_entry_t tss;
-} __attribute__((packed)) __attribute__((aligned(0x10))) FullGDT;
-
-FullGDT gdt[32] __attribute__((used)) = {{
-   {
-	  {0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00},
-	  {0xFFFF, 0x0000, 0x00, 0x9A, (1 << 6) | (1 << 7) | 0x0F, 0x00},
-	  {0xFFFF, 0x0000, 0x00, 0x92, (1 << 6) | (1 << 7) | 0x0F, 0x00},
-	  {0x0067, 0x0000, 0x00, 0xE9, 0x00, 0x00},
-   },
-   {0x00000000, 0x00000000},
-   {0x0000, 0x0000000000000000},
-   {0,{0,0,0},0,{0,0,0,0,0,0,0},0,0,0},
-}};
-
-void init_gdt()
+void
+create_descriptor(uint32_t base, uint32_t limit, uint16_t flag, int entry)
 {
-    for (int i = 1; i < 32; ++i) {
-		memcpy(&gdt[i], &gdt[0], sizeof(*gdt));
-	}
+    uint64_t descriptor;
+ 
+    // Create the high 32 bit segment
+    descriptor  =  limit       & 0x000F0000;         // set limit bits 19:16
+    descriptor |= (flag <<  8) & 0x00F0FF00;         // set type, p, dpl, s, g, d/b, l and avl fields
+    descriptor |= (base >> 16) & 0x000000FF;         // set base bits 23:16
+    descriptor |=  base        & 0xFF000000;         // set base bits 31:24
+ 
+    // Shift by 32 to allow for low part of segment
+    descriptor <<= 32;
+ 
+    // Create the low 32 bit segment
+    descriptor |= base  << 16;                       // set base bits 15:0
+    descriptor |= limit  & 0x0000FFFF;               // set limit bits 15:0
 
-    for (int i = 0; i < 32; ++i) {
-		gdt[i].pointer.limit = sizeof(gdt[i].entries)+sizeof(gdt[i].tss_extra)-1;
-		gdt[i].pointer.base  = (uintptr_t)&gdt[i].entries;
+	gdt_entries[entry] = descriptor << 32;
+}
 
-		uintptr_t addr = (uintptr_t)&gdt[i].tss;
-		gdt[i].entries[7].limit_low = sizeof(gdt[i].tss);
-		gdt[i].entries[7].base_low = (addr & 0xFFFF);
-		gdt[i].entries[7].base_middle = (addr >> 16) & 0xFF;
-		gdt[i].entries[7].base_high = (addr >> 24) & 0xFF;
-		gdt[i].tss_extra.base_highest = (addr >> 32) & 0xFFFFFFFF;
-	}
+void init_gdt() {
+	gdt_entries[0] = 0;
+	create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL0), 1);
+    create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL0), 2);
 
-    extern void * stack_top;
-	gdt[0].tss.rsp[0] = (uintptr_t)&stack_top;
+	struct GDTR gdtr = {
+		.limit = 3 * sizeof(uint64_t) - 1,
+		.address = (uintptr_t)&gdt_entries,
+	};
 
     asm volatile (
 		"mov %0, %%edi\n"
@@ -81,6 +50,6 @@ void init_gdt()
 		"mov %%ax, %%ss\n"
 		"mov $0x38, %%ax\n"
 		"ltr %%ax\n"
-		: : "r"(&gdt[0].pointer)
+		: : "r"(&gdtr)
 	);
 }

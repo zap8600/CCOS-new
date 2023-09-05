@@ -40,7 +40,7 @@ void terminal_putentryat(unsigned char c, uint8_t color, size_t x, size_t y) {
 
 void terminal_putchar(char c) {
 	unsigned char uc = c;
-	if (c == "\n") {
+	if (c == '\n') {
 		++terminal_row;
 		terminal_column = 0;
 	} else {

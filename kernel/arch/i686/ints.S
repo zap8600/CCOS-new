@@ -2,8 +2,8 @@
     .global _isr\index
     .type _isr\index, @function
     _isr\index:
-        pushq $0x00
-        pushq $\index
+        push $0x00
+        push $\index
         jmp isr_common
 .endm
 
@@ -11,7 +11,7 @@
     .global _isr\index
     .type _isr\index, @function
     _isr\index:
-        pushq $\index
+        push $\index
         jmp isr_common
 .endm
 
@@ -58,14 +58,7 @@ _isr2:
 
 isr_common:
     pusha
-
     cld
-
-    mov %rsp, %rdi
     call isr_handler
-
     popa
-    
-    add $8, %esp
-
     iret

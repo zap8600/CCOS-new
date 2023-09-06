@@ -27,7 +27,10 @@ stack_top:
 _start:
 	movl $stack_top, %esp
 
-	# Call the global constructors.
+ # Disable int
+ cli
+
+ # Call the global constructors.
 	call gdt_load
 
 	# Transfer control to the main kernel.

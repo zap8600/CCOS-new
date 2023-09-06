@@ -125,7 +125,7 @@ void idt_set_gate(int n, interrupt_handler_t handler)
 }
 
 void init_ints(void) {
-    idtp.limit = sizeof(idt);
+    idtp.limit = sizeof(idt) - 1;
     idtp.base  = (uintptr_t)&idt;
     idt_set_gate(0, _isr0);
     idt_set_gate(1, _isr1);

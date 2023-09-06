@@ -1,3 +1,4 @@
+#include <kernel/stdio.h>
 #include <kernel/int.h>
 #include <stdint.h>
 
@@ -48,11 +49,9 @@ typedef struct
 {
    uint16_t offset_1;        // offset bits 0..15
    uint16_t selector;
-   uint8_t  ist;
+   uint8_t zero;
    uint8_t  type_attributes; // gate type, dpl, and p fields
    uint16_t offset_2;        // offset bits 16..31
-   uint32_t offset_3;
-   uint32_t zero;
 } __attribute__((packed)) idt_entry_t;
 
 struct idt_pointer
@@ -72,8 +71,47 @@ typedef struct {
 static struct idt_pointer idtp;
 static idt_entry_t idt[256];
 
+char *exception_messages[] = {
+    "Division By Zero",
+    "Debug",
+    "Non Maskable Interrupt",
+    "Breakpoint",
+    "Into Detected Overflow",
+    "Out of Bounds",
+    "Invalid Opcode",
+    "No Coprocessor",
+
+    "Double Fault",
+    "Coprocessor Segment Overrun",
+    "Bad TSS",
+    "Segment Not Present",
+    "Stack Fault",
+    "General Protection Fault",
+    "Page Fault",
+    "Unknown Interrupt",
+
+    "Coprocessor Fault",
+    "Alignment Check",
+    "Machine Check",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved",
+    "Reserved"
+};
+
 void isr_handler(registers_t *r) {
-    UNUSED(r);
+    printf("Received ISR. ISR number: %d. ", r->int_no);
+    printf("Exception: %s.\n", exception_messages[r->int_no]);
 }
 
 void idt_set_gate(int n, interrupt_handler_t handler)
@@ -81,11 +119,9 @@ void idt_set_gate(int n, interrupt_handler_t handler)
     uintptr_t base = (uintptr_t)handler;
     idt[n].offset_1 = base & 0xFFFF;
     idt[n].selector = 0x08;
-    idt[n].ist = 0;
+    idt[n].zero = 0;
     idt[n].type_attributes = 0x8E;
     idt[n].offset_2 = (base >> 16) & 0xFFFF;
-    idt[n].offset_3 = (base >> 32) & 0xFFFFFFFF;
-    idt[n].zero = 0;
 }
 
 void init_ints(void) {
@@ -128,4 +164,5 @@ void init_ints(void) {
 		"lidt %0"
 		: : "m"(idtp)
 	);
+    __asm__ volatile ("sti");
 }

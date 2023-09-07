@@ -112,6 +112,7 @@ char *exception_messages[] = {
 void isr_handler(registers_t *r) {
     printf("Received ISR. ISR number: %d. ", r->int_no);
     printf("Exception: %s.\n", exception_messages[r->int_no]);
+    asm volatile("1: cli; hlt; jmp 1b");
 }
 
 void idt_set_gate(int n, interrupt_handler_t handler)

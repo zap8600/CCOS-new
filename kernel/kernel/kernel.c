@@ -8,7 +8,6 @@ void kernel_main(void) {
 	printf("Hello, kernel World!\n");
 	init_ints();
 	printf("Initialized interrupts!\n");
-	while(1) {}
-	__asm__ __volatile__("int $3");
+	breakpoint();
 	poweroff();
 }

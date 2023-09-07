@@ -57,8 +57,27 @@ _isr2:
     jmp 1b
 
 isr_common:
-    pusha
+    push %edi
+    push %esi
+    push %ebp
+    push %ebx
+    push %edx
+    push %ecx
+    push %eax
+
     cld
+    
+    push %esp
     call isr_handler
-    popa
+    mov %esp, %eax
+
+    push %edi
+    push %esi
+    push %ebp
+    push %ebx
+    push %edx
+    push %ecx
+    push %eax
+    
+    add $8, %esp
     iret

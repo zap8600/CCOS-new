@@ -119,14 +119,14 @@ void idt_set_gate(int n, interrupt_handler_t handler)
 {
     uintptr_t base = (uintptr_t)handler;
     idt[n].offset_1 = base & 0xFFFF;
-    idt[n].selector = 0x04;
+    idt[n].selector = 0x08;
     idt[n].zero = 0;
     idt[n].type_attributes = 0x8E;
     idt[n].offset_2 = (base >> 16) & 0xFFFF;
 }
 
 void init_ints(void) {
-    idtp.limit = sizeof(idt) - 1;
+    idtp.limit = sizeof(idt);
     idtp.base  = (uintptr_t)&idt;
     idt_set_gate(0, _isr0);
     idt_set_gate(1, _isr1);
@@ -162,7 +162,7 @@ void init_ints(void) {
     idt_set_gate(31, _isr31);
 
     asm volatile (
-		"lidt %0"
+		"lidt (%0)"
 		: : "m"(idtp)
 	);
     __asm__ volatile ("sti");

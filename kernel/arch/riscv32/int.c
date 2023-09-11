@@ -1,6 +1,8 @@
 #include <stdint.h>
+#include <kernel/stdio.h>
 #include <kernel/int.h>
 
+/*
 #define PLIC_ADDR 0xc000000
 
 #define PLIC_UART 10
@@ -29,9 +31,17 @@
 #define PLIC_COMPLETE(source) ({\
     *(uint32_t *)&((uint8_t *)PLIC_ADDR)[0x200004] = (source);\
 })
+*/
 
 void init_ints(void) {
+    /*
     PLIC_SET_THRESHOLD(0);
     PLIC_ENABLE(PLIC_UART);
     PLIC_SET_PRIO(PLIC_UART, 1);
+    */
+   printf("Interrupts not yet supported on RISC-V!");
+}
+
+void breakpoint(void) {
+    printf("Breakpoints not yet supported on RISC-V!\n");
 }

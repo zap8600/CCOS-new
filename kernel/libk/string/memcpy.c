@@ -1,4 +1,4 @@
-#include <kernel/string.h>
+#include <kernel/libk/string.h>
 
 void* memcpy(void* restrict dstptr, const void* restrict srcptr, size_t size) {
 	unsigned char* dst = (unsigned char*) dstptr;

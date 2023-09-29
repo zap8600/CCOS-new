@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <kernel/stdio.h>
+#include <kernel/libk/stdio.h>
 #include <kernel/power.h>
 
 unsigned int * syscon = (unsigned int *)0x100000;

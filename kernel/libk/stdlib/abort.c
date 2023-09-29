@@ -1,5 +1,5 @@
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
+#include <kernel/libk/stdio.h>
+#include <kernel/libk/stdlib.h>
 
 __attribute__((__noreturn__))
 void abort(void) {

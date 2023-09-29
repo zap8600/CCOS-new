@@ -2,7 +2,7 @@ SYSTEM_HEADER_PROJECTS="kernel"
 PROJECTS="kernel"
 
 export MAKE=${MAKE:-make}
-export HOST=$HOSTARCH-elf
+export HOST=${HOST:-$(./host.sh)}
 
 export AR=${HOST}-ar
 export AS=${HOST}-as
